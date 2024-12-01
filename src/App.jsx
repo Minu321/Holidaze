@@ -9,6 +9,7 @@ import CreateVenue from './components/CreateVenue';
 import MyBookings from './components/MyBookings';
 import MyVenues from './components/MyVenues';
 import EditVenue from './components/EditVenue';
+import Footer from './components/Footer';
 import { profileApi } from './utils/api';
 
 export default function App() {
@@ -21,7 +22,6 @@ export default function App() {
       const parsedUserData = JSON.parse(storedUserData);
       setUser(parsedUserData);
       
-    
       const fetchUserProfile = async () => {
         try {
           const response = await profileApi.getProfile(parsedUserData.name);
@@ -33,7 +33,6 @@ export default function App() {
           };
           setUser(updatedUserData);
           localStorage.setItem('userData', JSON.stringify(updatedUserData));
-          
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }
@@ -50,7 +49,7 @@ export default function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 flex flex-col">
         <nav className="bg-white shadow-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
@@ -105,7 +104,7 @@ export default function App() {
           </div>
         </nav>
 
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <main className="max-w-7xl w-full mx-auto py-6 sm:px-6 lg:px-8 flex-grow flex-shrink-0">
           <Routes>
             <Route path="/" element={<VenueList />} />
             <Route path="/venues/:id" element={<VenueDetails user={user} />} />
@@ -118,7 +117,9 @@ export default function App() {
             <Route path="/venues/:id/edit" element={<EditVenue user={user} />} />
           </Routes>
         </main>
+
+        <Footer />
       </div>
     </Router>
   );
-}
+};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { profileApi } from '../utils/api';
+import { profileApi, venueApi } from '../utils/api';
 import VenueBookings from './VenueBookings';
 
 export default function MyVenues({ user }) {
@@ -10,25 +10,37 @@ export default function MyVenues({ user }) {
   const [selectedVenueId, setSelectedVenueId] = useState(null);
 
   useEffect(() => {
-    const fetchVenues = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await profileApi.getUserVenues(user.name);
-        setVenues(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error('Error fetching venues:', error);
-        setError(error.message || 'An error occurred while fetching your venues.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchVenues();
   }, [user]);
+
+  const fetchVenues = async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await profileApi.getUserVenues(user.name);
+      setVenues(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error fetching venues:', error);
+      setError(error.message || 'An error occurred while fetching your venues.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteVenue = async (venueId) => {
+    if (window.confirm('Are you sure you want to delete this venue?')) {
+      try {
+        await venueApi.deleteVenue(venueId);
+        setVenues(venues.filter(venue => venue.id !== venueId));
+      } catch (error) {
+        console.error('Error deleting venue:', error);
+        setError(error.message || 'An error occurred while deleting the venue.');
+      }
+    }
+  };
 
   if (!user) {
     return (
@@ -73,18 +85,30 @@ export default function MyVenues({ user }) {
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{venue.name}</h2>
                 <p className="text-gray-600 mb-4">{venue.description}</p>
-                <div className="flex justify-between items-center">
+                <div className="grid grid-cols-2 gap-2">
                   <Link
                     to={`/venues/${venue.id}`}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                    className="bg-blue-500 text-white text-center px-2 py-1 rounded text-sm hover:bg-blue-600 transition duration-300"
                   >
                     View Details
                   </Link>
+                  <Link
+                    to={`/venues/${venue.id}/edit`}
+                    className="bg-yellow-500 text-white text-center px-2 py-1 rounded text-sm hover:bg-yellow-600 transition duration-300"
+                  >
+                    Edit Venue
+                  </Link>
                   <button
                     onClick={() => setSelectedVenueId(venue.id)}
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+                    className="bg-green-500 text-white text-center px-2 py-1 rounded text-sm hover:bg-green-600 transition duration-300"
                   >
                     View Bookings
+                  </button>
+                  <button
+                    onClick={() => handleDeleteVenue(venue.id)}
+                    className="bg-red-500 text-white text-center px-2 py-1 rounded text-sm hover:bg-red-600 transition duration-300"
+                  >
+                    Delete Venue
                   </button>
                 </div>
               </div>

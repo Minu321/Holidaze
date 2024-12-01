@@ -38,16 +38,33 @@ export default function EditVenue({ user }) {
     const { name, value, type, checked } = e.target;
     setVenue(prevVenue => ({
       ...prevVenue,
-      [name]: type === 'checkbox' 
+      [name]: type === 'checkbox'
         ? { ...prevVenue.meta, [name]: checked }
         : type === 'number' ? Number(value) : value
+    }));
+  };
+
+  const handleMetaChange = (e) => {
+    const { name, checked } = e.target;
+    setVenue(prevVenue => ({
+      ...prevVenue,
+      meta: { ...prevVenue.meta, [name]: checked }
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await venueApi.updateVenue(id, venue);
+      const updatedVenue = {
+        ...venue,
+        location: {
+          ...venue.location,
+          address: venue.location?.address || '',
+          zip: venue.location?.zip || '',
+          country: venue.location?.country || '',
+        }
+      };
+      await venueApi.updateVenue(id, updatedVenue);
       alert('Venue updated successfully!');
       navigate('/my-venues');
     } catch (error) {
@@ -132,6 +149,48 @@ export default function EditVenue({ user }) {
           />
         </div>
         <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
+            Address
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="address"
+            name="address"
+            type="text"
+            value={venue.location?.address || ''}
+            onChange={(e) => setVenue({...venue, location: {...venue.location, address: e.target.value}})}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="zip">
+            Zip Code
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="zip"
+            name="zip"
+            type="text"
+            value={venue.location?.zip || ''}
+            onChange={(e) => setVenue({...venue, location: {...venue.location, zip: e.target.value}})}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="country">
+            Country
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="country"
+            name="country"
+            type="text"
+            value={venue.location?.country || ''}
+            onChange={(e) => setVenue({...venue, location: {...venue.location, country: e.target.value}})}
+            required
+          />
+        </div>
+        <div className="mb-4">
           <span className="block text-gray-700 text-sm font-bold mb-2">Amenities</span>
           <label className="inline-flex items-center mr-4">
             <input
@@ -139,7 +198,7 @@ export default function EditVenue({ user }) {
               name="wifi"
               className="form-checkbox"
               checked={venue.meta?.wifi || false}
-              onChange={(e) => setVenue({...venue, meta: {...venue.meta, wifi: e.target.checked}})}
+              onChange={handleMetaChange}
             />
             <span className="ml-2">WiFi</span>
           </label>
@@ -149,7 +208,7 @@ export default function EditVenue({ user }) {
               name="parking"
               className="form-checkbox"
               checked={venue.meta?.parking || false}
-              onChange={(e) => setVenue({...venue, meta: {...venue.meta, parking: e.target.checked}})}
+              onChange={handleMetaChange}
             />
             <span className="ml-2">Parking</span>
           </label>
@@ -159,7 +218,7 @@ export default function EditVenue({ user }) {
               name="breakfast"
               className="form-checkbox"
               checked={venue.meta?.breakfast || false}
-              onChange={(e) => setVenue({...venue, meta: {...venue.meta, breakfast: e.target.checked}})}
+              onChange={handleMetaChange}
             />
             <span className="ml-2">Breakfast</span>
           </label>
@@ -169,7 +228,7 @@ export default function EditVenue({ user }) {
               name="pets"
               className="form-checkbox"
               checked={venue.meta?.pets || false}
-              onChange={(e) => setVenue({...venue, meta: {...venue.meta, pets: e.target.checked}})}
+              onChange={handleMetaChange}
             />
             <span className="ml-2">Pets Allowed</span>
           </label>
@@ -180,6 +239,13 @@ export default function EditVenue({ user }) {
             type="submit"
           >
             Update Venue
+          </button>
+          <button
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="button"
+            onClick={() => navigate('/my-venues')}
+          >
+            Cancel
           </button>
         </div>
       </form>
