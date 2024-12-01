@@ -37,7 +37,7 @@ export default function Profile({ user, setUser }) {
 
   useEffect(() => {
     fetchLatestUserData();
-  }, [user]);
+  }, []); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();

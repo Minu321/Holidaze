@@ -16,7 +16,7 @@ export default function MyBookings({ user }) {
 
       try {
         const response = await bookingApi.getUserBookings(user.name);
-        // Ensure we're setting an array of bookings
+        
         setBookings(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Error fetching bookings:', error);

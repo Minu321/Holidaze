@@ -31,9 +31,9 @@ export default function Login({ setUser }) {
 
       localStorage.setItem('accessToken', loginData.data.accessToken);
 
-      // Fetch the user's profile to get the venueManager status
+     
       const response = await profileApi.getProfile(loginData.data.name);
-      const profileData = response.data; // Extract the data from the response
+      const profileData = response.data; 
 
       const updatedUserData = {
         ...loginData.data,

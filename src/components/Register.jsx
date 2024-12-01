@@ -18,7 +18,7 @@ export default function Register() {
 
     try {
       await authApi.register({ name, email, password, venueManager });
-      // Redirect to login page with a success message
+      
       navigate('/login', { state: { message: 'Registration successful. Please log in.' } });
     } catch (error) {
       console.error('Registration error:', error);
