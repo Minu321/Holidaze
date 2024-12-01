@@ -54,7 +54,10 @@ export const profileApi = {
 
 export const venueApi = {
   getVenues: () => apiRequest('/holidaze/venues'),
-  getVenue: (id) => apiRequest(`/holidaze/venues/${id}`),
+  getVenue: (id, includeBookings = false) => {
+    const queryParams = includeBookings ? '?_bookings=true' : '';
+    return apiRequest(`/holidaze/venues/${id}${queryParams}`);
+  },
   createVenue: async (data) => {
     try {
       const response = await apiRequest('/holidaze/venues', { 
@@ -76,8 +79,26 @@ export const venueApi = {
   deleteVenue: (id) => apiRequest(`/holidaze/venues/${id}`, { method: 'DELETE' }),
 };
 
+
 export const bookingApi = {
   getBookings: () => apiRequest('/holidaze/bookings'),
   createBooking: (data) => apiRequest('/holidaze/bookings', { method: 'POST', body: JSON.stringify(data) }),
   getUserBookings: (username) => apiRequest(`/holidaze/profiles/${username}/bookings?_venue=true&_customer=true`),
+  deleteBooking: async (bookingId) => {
+    const response = await fetch(`https://v2.api.noroff.dev/holidaze/bookings/${bookingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        'X-Noroff-API-Key': import.meta.env.VITE_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete booking');
+    }
+
+    return response;
+  },
 };
+

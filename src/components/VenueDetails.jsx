@@ -6,8 +6,10 @@ import 'react-calendar/dist/Calendar.css';
 export default function VenueDetails({ user }) {
   const { id } = useParams();
   const [venue, setVenue] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [dateRange, setDateRange] = useState([null, null]);
   const [guests, setGuests] = useState(1);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchVenueDetails();
@@ -15,28 +17,56 @@ export default function VenueDetails({ user }) {
 
   const fetchVenueDetails = async () => {
     try {
-      const response = await fetch(`https://v2.api.noroff.dev/holidaze/venues/${id}`);
+      const response = await fetch(`https://v2.api.noroff.dev/holidaze/venues/${id}?_bookings=true`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'X-Noroff-API-Key': import.meta.env.VITE_API_KEY,
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch venue details');
+      }
       const data = await response.json();
       setVenue(data.data);
+      setBookings(data.data.bookings || []);
     } catch (error) {
       console.error('Error fetching venue details:', error);
+      setError('Failed to load venue details. Please try again later.');
     }
   };
 
+  const isDateBooked = (date) => {
+    return bookings.some(booking => {
+      const bookingStart = new Date(booking.dateFrom);
+      const bookingEnd = new Date(booking.dateTo);
+      return date >= bookingStart && date <= bookingEnd;
+    });
+  };
+
+  const isDateRangeValid = (start, end) => {
+    if (!start || !end) return false;
+    let current = new Date(start);
+    while (current <= end) {
+      if (isDateBooked(current)) return false;
+      current.setDate(current.getDate() + 1);
+    }
+    return true;
+  };
+
   const handleBooking = async () => {
-    if (!user || !selectedDate || !venue) return;
+    if (!user || !dateRange[0] || !dateRange[1] || !venue) return;
 
     try {
       const response = await fetch('https://v2.api.noroff.dev/holidaze/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'X-Noroff-API-Key': import.meta.env.VITE_API_KEY,
         },
         body: JSON.stringify({
-          dateFrom: selectedDate.toISOString(),
-          dateTo: new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+          dateFrom: dateRange[0].toISOString(),
+          dateTo: dateRange[1].toISOString(),
           guests: guests,
           venueId: venue.id,
         }),
@@ -44,8 +74,11 @@ export default function VenueDetails({ user }) {
 
       if (response.ok) {
         alert('Booking successful!');
+        fetchVenueDetails(); 
+        setDateRange([null, null]); 
       } else {
-        alert('Booking failed. Please try again.');
+        const errorData = await response.json();
+        alert(`Booking failed: ${errorData.errors[0].message}`);
       }
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -53,6 +86,7 @@ export default function VenueDetails({ user }) {
     }
   };
 
+  if (error) return <div className="text-red-500">{error}</div>;
   if (!venue) return <div>Loading...</div>;
 
   return (
@@ -87,8 +121,11 @@ export default function VenueDetails({ user }) {
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-2">Book this venue</h2>
             <Calendar
-              onChange={setSelectedDate}
-              value={selectedDate}
+              onChange={setDateRange}
+              value={dateRange}
+              selectRange={true}
+              tileDisabled={({date}) => isDateBooked(date)}
+              tileClassName={({date}) => isDateBooked(date) ? 'bg-red-200' : null}
               className="mb-4"
             />
             <div className="mb-4">
@@ -107,7 +144,8 @@ export default function VenueDetails({ user }) {
             </div>
             <button
               onClick={handleBooking}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={!dateRange[0] || !dateRange[1] || !isDateRangeValid(dateRange[0], dateRange[1])}
+              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Book Now
             </button>

@@ -37,7 +37,7 @@ export default function VenueList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredVenues.map((venue) => (
           <Link key={venue.id} to={`/venues/${venue.id}`} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img src={venue.media[0]?.url || '/placeholder.svg?height=200&width=300'} alt={venue.media[0]?.alt || venue.name} className="w-full h-48 object-cover" />
+            <img src={venue.media[0]?.url || '/placeholder.png'} alt={venue.media[0]?.alt || venue.name} className="w-full h-48 object-cover" />
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-2">{venue.name}</h2>
               <p className="text-gray-600 mb-2">{venue.description.slice(0, 100)}...</p>

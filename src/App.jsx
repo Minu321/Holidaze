@@ -21,11 +21,11 @@ export default function App() {
       const parsedUserData = JSON.parse(storedUserData);
       setUser(parsedUserData);
       
-      // Fetch the latest user profile data
+    
       const fetchUserProfile = async () => {
         try {
           const response = await profileApi.getProfile(parsedUserData.name);
-          const profileData = response.data; // Extract the data from the response
+          const profileData = response.data; 
           const updatedUserData = {
             ...parsedUserData,
             ...profileData,
@@ -33,7 +33,7 @@ export default function App() {
           };
           setUser(updatedUserData);
           localStorage.setItem('userData', JSON.stringify(updatedUserData));
-          console.log('Updated user data:', updatedUserData);
+          
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }

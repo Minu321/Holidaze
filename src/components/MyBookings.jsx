@@ -16,7 +16,6 @@ export default function MyBookings({ user }) {
 
       try {
         const response = await bookingApi.getUserBookings(user.name);
-        
         setBookings(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -28,6 +27,20 @@ export default function MyBookings({ user }) {
 
     fetchBookings();
   }, [user]);
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) {
+      return;
+    }
+
+    try {
+      await bookingApi.deleteBooking(bookingId);
+      setBookings(bookings.filter(booking => booking.id !== bookingId));
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      setError(error.message || 'An error occurred while cancelling your booking.');
+    }
+  };
 
   if (!user) {
     return (
@@ -75,14 +88,22 @@ export default function MyBookings({ user }) {
                   {new Date(booking.dateFrom).toLocaleDateString()} - {new Date(booking.dateTo).toLocaleDateString()}
                 </p>
                 <p className="text-gray-600 mb-4">Guests: {booking.guests}</p>
-                {booking.venue && (
-                  <Link
-                    to={`/venues/${booking.venue.id}`}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                <div className="flex justify-between items-center">
+                  {booking.venue && (
+                    <Link
+                      to={`/venues/${booking.venue.id}`}
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                    >
+                      View Venue
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => handleDeleteBooking(booking.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
                   >
-                    View Venue
-                  </Link>
-                )}
+                    Cancel Booking
+                  </button>
+                </div>
               </div>
             </div>
           ))}
