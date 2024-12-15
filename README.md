@@ -107,6 +107,9 @@ The application uses JSON Web Tokens (JWT) for authentication and authorization.
 - Enhance user profile management with additional customization options.
 - Add unit and integration tests to ensure code quality.
 
+## Contact:
+[LinkedIn](https://www.linkedin.com/in/mina-roseth-beni-652b90292/)
 
+## Contribute
 Thank you for checking out Holidaze! If you have any questions or encounter issues, feel free to open an issue or contribute to the project.
 
