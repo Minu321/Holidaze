@@ -10,9 +10,8 @@ Holidaze is a booking application that provides both customer-facing and admin-f
 - [Installation](#installation)
 - [Usage](#usage)
 - [Authentication](#authentication)
-- [Project Structure](#project-structure)
 - [Future Improvements](#future-improvements)
-- [License](#license)
+
 
 ## Description
 
